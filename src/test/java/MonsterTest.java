@@ -1,6 +1,11 @@
+
 import org.junit.*;
 import static org.junit.Assert.*;
 import org.sql2o.*;
+import java.text.DateFormat;
+import java.sql.Timestamp;
+import java.util.Date;
+
 
 public class MonsterTest {
 
@@ -184,6 +189,95 @@ public class MonsterTest {
       } catch (UnsupportedOperationException exception){ }
     }
     assertTrue(testMonster.getSleepLevel() <= Monster.MAX_SLEEP_LEVEL);
+  }
+
+  @Test
+  public void save_recordsTimeOfCreationInDatabase() {
+    Monster testMonster = new Monster("Bubbles", 1);
+    testMonster.save();
+    Timestamp savedMonsterBirthday = Monster.find(testMonster.getId()).getBirthday();
+    Timestamp rightNow = new Timestamp(new Date().getTime());
+    assertEquals(rightNow.getDay(), savedMonsterBirthday.getDay());
+  }
+
+  @Test
+  public void save_recordsTimeLastAteInDatabase() {
+    Monster testMonster = new Monster("Bubbles", 1);
+    testMonster.save();
+    Timestamp savedMonsterLastAte = Monster.find(testMonster.getId()).getLastAte();
+    Timestamp rightNow = new Timestamp(new Date().getTime());
+    assertEquals(rightNow.getDay(), savedMonsterLastAte.getDay());
+  }
+
+  @Test
+  public void save_recordsTimeLastSleptInDatabase() {
+    Monster testMonster = new Monster("Bubbles", 1);
+    testMonster.save();
+    Timestamp savedMonsterLastSlept = Monster.find(testMonster.getId()).getLastSlept();
+    Timestamp rightNow = new Timestamp(new Date().getTime());
+    assertEquals(rightNow.getDay(), savedMonsterLastSlept.getDay());
+  }
+
+  @Test
+  public void save_recordsTimeOfLastPlayedWithInDatabase() {
+    Monster testMonster = new Monster("Bubbles", 1);
+    testMonster.save();
+    Timestamp savedMonsterLastPlayed = Monster.find(testMonster.getId()).getLastPlayed();
+    Timestamp rightNow = new Timestamp(new Date().getTime());
+    assertEquals(rightNow.getDay(), savedMonsterLastPlayed.getDay());
+  }
+
+  @Test
+  public void sleep_recordsTimeLastSleptInDatabase() {
+    Monster testMonster = new Monster("Bubbles", 1);
+    testMonster.save();
+    testMonster.sleep();
+    Timestamp savedMonsterLastSlept = Monster.find(testMonster.getId()).getLastSlept();
+    Timestamp rightNow = new Timestamp(new Date().getTime());
+    assertEquals(DateFormat.getDateTimeInstance().format(rightNow), DateFormat.getDateTimeInstance().format(savedMonsterLastSlept));
+  }
+
+  @Test
+  public void feed_recordsTimeLastAteInDatabase() {
+    Monster testMonster = new Monster("Bubbles", 1);
+    testMonster.save();
+    testMonster.feed();
+    Timestamp savedMonsterLastAte = Monster.find(testMonster.getId()).getLastAte();
+    Timestamp rightNow = new Timestamp(new Date().getTime());
+    assertEquals(DateFormat.getDateTimeInstance().format(rightNow), DateFormat.getDateTimeInstance().format(savedMonsterLastAte));
+  }
+
+  @Test
+  public void play_recordsTimeLastPlayedWithInDatabase() {
+    Monster testMonster = new Monster("Bubbles", 1);
+    testMonster.save();
+    testMonster.play();
+    Timestamp savedMonsterLastPlayed = Monster.find(testMonster.getId()).getLastPlayed();
+    Timestamp rightNow = new Timestamp(new Date().getTime());
+    assertEquals(DateFormat.getDateTimeInstance().format(rightNow), DateFormat.getDateTimeInstance().format(savedMonsterLastPlayed));
+  }
+
+  @Test
+  public void timer_executesDepleteLevelsMethod() {
+    Monster testMonster = new Monster("Bubbles", 1);
+    int firstPlayLevel = testMonster.getPlayLevel();
+    testMonster.startTimer();
+    try {
+      Thread.sleep(6000);
+    } catch (InterruptedException exception) {}
+    int secondPlayLevel = testMonster.getPlayLevel();
+    assertTrue(firstPlayLevel > secondPlayLevel);
+  }
+
+  @Test
+  public void timer_haltsAfterMonsterDies() {
+    Monster testMonster = new Monster("Bubbles", 1);
+    testMonster.startTimer();
+    try {
+      Thread.sleep(6000);
+    } catch (InterruptedException exception){}
+    assertFalse(testMonster.isAlive());
+    assertTrue(testMonster.getFoodLevel() >= 0);
   }
 
 }
