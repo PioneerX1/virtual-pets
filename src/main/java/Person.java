@@ -35,7 +35,7 @@ public class Person {
   }
 
   public static List<Person> all() {
-    String sql = "SELECT * FROM persons";
+    final String sql = "SELECT * FROM persons";
     try(Connection con = DB.sql2o.open()) {
      return con.createQuery(sql).executeAndFetch(Person.class);
     }
@@ -59,6 +59,15 @@ public class Person {
       Person newPerson = (Person) otherPerson;
       return this.getName().equals(newPerson.getName()) &&
              this.getEmail().equals(newPerson.getEmail());
+    }
+  }
+
+  public List<Monster> getMonsters() {
+    try(Connection con = DB.sql2o.open()) {
+      String sql = "SELECT * FROM monsters where personId=:id";
+      return con.createQuery(sql)
+        .addParameter("id", this.id)
+        .executeAndFetch(Monster.class);
     }
   }
 
